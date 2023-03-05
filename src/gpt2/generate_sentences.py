@@ -1,8 +1,8 @@
 import argparse
 import torch.nn as nn
-from gpt2.data import Vocab, Tokenizer
-from gpt2.modeling import Transformer
-from gpt2.generation import GenerationSpec, GenerateConfig, Generator
+from data import Vocab, Tokenizer
+from modeling import Transformer
+from generation import GenerationSpec, GenerateConfig, Generator
 from typing import List
 
 

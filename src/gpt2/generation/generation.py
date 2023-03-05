@@ -1,6 +1,6 @@
 import torch
-from gpt2.modeling import Past
-from gpt2.generation import GenerationSpec, GenerateConfig
+from modeling import Past
+from generation import GenerationSpec, GenerateConfig
 from typing import List, Optional, Tuple
 
 

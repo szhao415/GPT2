@@ -2,20 +2,22 @@ import argparse
 import torch
 import torch.nn as nn
 import torch.optim as optim
-from gpt2.utils import fusing
-from gpt2.modeling import Transformer
-from gpt2.data import Dataset, Vocab, TokenizedCorpus
-from gpt2.training import TrainConfig, TrainingSpec, Trainer
+from utils import fusing
+from modeling import Transformer
+from data import Dataset, Vocab, TokenizedCorpus
+from training import TrainConfig, TrainingSpec, Trainer
 from typing import Tuple, Iterator, Dict
 
 
 class GPT2TrainingSpec(TrainingSpec):
-    def __init__(self, train_corpus: str, eval_corpus: str, vocab_path: str,
+    def __init__(self, train_corpus: str, midi_train_corpus: str, eval_corpus: str, midi_eval_corpus, vocab_path: str,
                  seq_len: int, layers: int, heads: int, dims: int, rate: int,
                  dropout: float, base_lr: float, wd_rate: float,
                  total_steps: int, use_grad_ckpt: bool):
         self.train_corpus = train_corpus
         self.eval_corpus = eval_corpus
+        self.midi_train_corpus = midi_train_corpus
+        self.midi_eval_corpus = midi_eval_corpus
         self.vocab_path = vocab_path
         self.seq_len = seq_len
         self.layers = layers
@@ -72,7 +74,8 @@ class GPT2TrainingSpec(TrainingSpec):
 
 def train_gpt2_model(args: argparse.Namespace):
     spec = GPT2TrainingSpec(
-        train_corpus=args.train_corpus, eval_corpus=args.eval_corpus,
+        train_corpus=args.train_corpus,  eval_corpus=args.eval_corpus,
+        midi_train_corpus=args.train_midi_corpus, midi_eval_corpus=args.eval_midi_corpus,
         vocab_path=args.vocab_path, seq_len=args.seq_len, layers=args.layers,
         heads=args.heads, dims=args.dims, rate=args.rate, dropout=args.dropout,
         base_lr=args.base_lr, wd_rate=args.wd_rate,
@@ -98,6 +101,10 @@ def add_subparser(subparsers: argparse._SubParsersAction):
                        help='training corpus file path')
     group.add_argument('--eval_corpus', required=True,
                        help='evaluation corpus file path')
+    group.add_argument('--train_midi_corpus', required=True,
+                       help='midi training corpus file path')
+    group.add_argument('--eval_midi_corpus', required=True,
+                       help='midi evaluation corpus file path')
     group.add_argument('--vocab_path', required=True,
                        help='vocabulary file path')
 

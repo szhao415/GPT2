@@ -1,3 +1,3 @@
-from gpt2.evaluation.specification import EvaluationSpec
-from gpt2.evaluation.configuration import EvaluateConfig
-from gpt2.evaluation.evaluation import Evaluator
+from evaluation.specification import EvaluationSpec
+from evaluation.configuration import EvaluateConfig
+from evaluation.evaluation import Evaluator

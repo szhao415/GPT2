@@ -2,8 +2,8 @@ import torch
 import torch.nn as nn
 import torch.utils.checkpoint
 from functools import partial
-from gpt2.utils.fusing import LayerNorm
-from gpt2.modeling import (PadMasking, FutureMasking, AttentionLayer, Past,
+from utils.fusing import LayerNorm
+from modeling import (PadMasking, FutureMasking, AttentionLayer, Past,
                            PositionalEmbedding, TokenEmbedding,
                            PositionwiseFeedForward)
 from typing import Optional, Tuple, List, Union
@@ -75,6 +75,8 @@ class Transformer(nn.Module):
 
         self.positional_embedding = PositionalEmbedding(seq_len, dims)
         self.token_embedding = TokenEmbedding(words, dims)
+        # six is length of midi token
+        self.midi_matrix = nn.Linear(6, dims)
         self.dropout_embedding = nn.Dropout(dropout)
 
         self.transformers = nn.ModuleList([
@@ -84,6 +86,7 @@ class Transformer(nn.Module):
 
     def forward(self,
                 x: torch.Tensor,
+                x_2: torch.Tensor,
                 past: Optional[List[Past]] = None,
                 use_grad_ckpt: bool = False
                 ) -> Union[torch.Tensor, Tuple[torch.Tensor, List[Past]]]:
@@ -95,7 +98,10 @@ class Transformer(nn.Module):
             mask = mask + self.future_masking(x, offset)
 
         # Use token embedding and positional embedding layers.
-        x = self.token_embedding(x) + self.positional_embedding(x, offset)
+        x_2 = x_2 @ self.midi_matrix
+        x = self.token_embedding(x)
+        x = torch.cat((x_2, x), 0)
+        x += self.positional_embedding(x, offset)
         x = self.dropout_embedding(x)
 
         # Apply transformer layers sequentially.

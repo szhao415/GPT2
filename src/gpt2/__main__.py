@@ -1,8 +1,10 @@
 import argparse
-from gpt2 import (train_model,
-                  evaluate_model,
-                  generate_sentences,
-                  visualize_metrics)
+import train_model
+import evaluate_model
+import generate_sentences
+import visualize_metrics
+import sys
+sys.path.append('/C:Users/steven/PycharmProjects/GPT2/src/gpt2')
 
 
 if __name__ == '__main__':

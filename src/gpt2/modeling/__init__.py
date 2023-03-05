@@ -1,6 +1,6 @@
-from gpt2.modeling.attention import (Past, BaseAttention, MultiHeadAttention,
+from modeling.attention import (Past, BaseAttention, MultiHeadAttention,
                                      AttentionLayer)
-from gpt2.modeling.embedding import PositionalEmbedding, TokenEmbedding
-from gpt2.modeling.feedforward import Swish, PositionwiseFeedForward
-from gpt2.modeling.masking import PadMasking, FutureMasking
-from gpt2.modeling.transformer import TransformerLayer, Transformer
+from modeling.embedding import PositionalEmbedding, TokenEmbedding
+from modeling.feedforward import Swish, PositionwiseFeedForward
+from modeling.masking import PadMasking, FutureMasking
+from modeling.transformer import TransformerLayer, Transformer

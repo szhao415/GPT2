@@ -1,16 +1,17 @@
 import argparse
 import torch
 import torch.nn as nn
-from gpt2.modeling import Transformer
-from gpt2.data import Dataset, Vocab, TokenizedCorpus
-from gpt2.evaluation import EvaluationSpec, EvaluateConfig, Evaluator
+from modeling import Transformer
+from data import Dataset, Vocab, TokenizedCorpus
+from evaluation import EvaluationSpec, EvaluateConfig, Evaluator
 from typing import Dict
 
 
 class GPT2EvaluationSpec(EvaluationSpec):
-    def __init__(self, eval_corpus: str, vocab_path: str, seq_len: int,
+    def __init__(self, eval_corpus: str, eval_midi_corpus: str, vocab_path: str, seq_len: int,
                  layers: int, heads: int, dims: int, rate: int):
         self.eval_corpus = eval_corpus
+        self.eval_midi_corpus = eval_midi_corpus
         self.vocab_path = vocab_path
         self.seq_len = seq_len
         self.layers = layers
@@ -26,7 +27,7 @@ class GPT2EvaluationSpec(EvaluationSpec):
         return TokenizedCorpus(corpus_path=self.eval_corpus,
                                vocab=self.vocab,
                                seq_len=self.seq_len,
-                               repeat=False)
+                               repeat=False), self.eval_midi_corpus
 
     def construct_model(self) -> nn.Module:
         return Transformer(layers=self.layers, pad_idx=self.vocab.pad_idx,
@@ -36,7 +37,7 @@ class GPT2EvaluationSpec(EvaluationSpec):
 
     def eval_objective(self, data: Dict[str, torch.Tensor], model: nn.Module
                        ) -> Dict[str, torch.Tensor]:
-        logits, _ = model(data['input'], past=None)
+        logits, _ = model(data['input'], data['input_midi'], past=None)
         loss = self.criterion(logits.transpose(1, 2), data['output'])
 
         mask = (data['output'] != self.vocab.pad_idx).float()
@@ -48,7 +49,7 @@ class GPT2EvaluationSpec(EvaluationSpec):
 
 def evaluate_gpt2_model(args: argparse.Namespace):
     spec = GPT2EvaluationSpec(
-        eval_corpus=args.eval_corpus, vocab_path=args.vocab_path,
+        eval_corpus=args.eval_corpus, eval_midi_corpus=args.eval_midi_corpus, vocab_path=args.vocab_path,
         seq_len=args.seq_len, layers=args.layers, heads=args.heads,
         dims=args.dims, rate=args.rate)
     config = EvaluateConfig(
@@ -67,6 +68,8 @@ def add_subparser(subparsers: argparse._SubParsersAction):
     group = parser.add_argument_group('Corpus and vocabulary')
     group.add_argument('--eval_corpus', required=True,
                        help='evaluation corpus file path')
+    group.add_argument('--eval_midi_corpus', required=True,
+                       help='midi evaluation corpus file path')
     group.add_argument('--vocab_path', required=True,
                        help='vocabulary file path')
 

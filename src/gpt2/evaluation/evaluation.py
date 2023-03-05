@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
-from gpt2.data import Dataset
-from gpt2.evaluation import EvaluationSpec, EvaluateConfig
+from data import Dataset
+from evaluation import EvaluationSpec, EvaluateConfig
 from typing import Optional, Dict
 
 
@@ -13,7 +13,7 @@ class Evaluator(object):
     def evaluate(self, from_model: Optional[str] = None) -> Dict[str, float]:
         # Initialize evaluation environment and prepare a dataset.
         self.spec.initialize()
-        eval_dataset = self.spec.prepare_dataset()
+        eval_dataset, eval_midi_dataset = self.spec.prepare_dataset()
 
         # Load trained model parameters.
         model = self.spec.construct_model().eval()
@@ -28,7 +28,7 @@ class Evaluator(object):
 
         total_metrics = {}
         for _ in self.config.iterate():
-            batch_metrics = self._eval_step(eval_dataset, model)
+            batch_metrics = self._eval_step(eval_dataset, eval_midi_dataset, model)
             if batch_metrics is None:
                 break
 
